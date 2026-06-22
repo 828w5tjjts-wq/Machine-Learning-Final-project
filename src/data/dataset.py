@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 class AirbnbDataset(Dataset):
     def __init__(self, X, y):
         self.X = torch.tensor(X, dtype=torch.float32)
-        self.y = torch.tensor(y, dtype=torch.float32).unsqueeze(1) # Shape (N,) -> (N, 1)
+        self.y = torch.tensor(y, dtype=torch.float32).unsqueeze(1)
 
     def __len__(self):
         return len(self.X)
