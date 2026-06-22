@@ -71,3 +71,25 @@ if __name__ == "__main__":
     
     X, y = prepare_data(df_test)
     print("Test erfolgreich!")
+
+def load_processed_data(path_X='X_filtered.npy', path_y='y.npy'):
+    """
+    Lägt die gespeicherten Numpy-Dateien und stellt sicher, dass sie Float32 sind.
+    """
+    try:
+        X_raw = np.load(path_X, allow_pickle=True)
+        y = np.load(path_y, allow_pickle=True)
+        
+        # Typ-Korrektur
+        X_raw = X_raw.astype(np.float32)
+        y = y.astype(np.float32)
+        
+        print(f"Daten geladen: X Shape {X_raw.shape}, y Shape {y.shape}")
+        return X_raw, y
+        
+    except FileNotFoundError:
+        print("Fehler: Dateien nicht gefunden. Hast du prepare_data() ausgeführt?")
+        return None, None
+    except ValueError as e:
+        print(f"Fehler beim Umwandeln in Float: {e}")
+        return None, None
