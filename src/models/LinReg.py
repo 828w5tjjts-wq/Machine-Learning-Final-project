@@ -7,7 +7,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "class LinearRegression(torch.nn.Module):\n",
+    "class LinearRegression2(torch.nn.Module):\n",
     "    \"\"\"\n",
     "    Linear regression model inherits the torch.nn.Module\n",
     "    which is the base class for all PyTorch modules.\n",
