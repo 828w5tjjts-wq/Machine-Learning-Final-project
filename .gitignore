@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+
+# Daten & Bilder
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Modelle
+models/*.h5
+models/*.pkl
+models/*.pt
+
+# Jupyter
+.ipynb_checkpoints/
