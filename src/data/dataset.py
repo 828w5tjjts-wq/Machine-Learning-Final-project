@@ -30,3 +30,14 @@ def create_dataloaders(X_train, X_val, X_test, y_train, y_val, y_test, batch_siz
     print(f"  Test Batches: {len(test_loader)}")
     
     return train_loader, val_loader, test_loader
+
+class MultimodalDataset(Dataset):
+    def __init__(self, X, y):
+        # X enthält jetzt schon: [Zahlen, Bild-Vektor]
+        self.X = torch.tensor(X, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.float32).unsqueeze(1)
+    
+    def __len__(self): return len(self.X)
+    
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
