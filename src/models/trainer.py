@@ -76,7 +76,7 @@ def train_model_with_early_stopping(model, train_dataloader, val_dataloader, los
                 
                 val_outputs = model(val_inputs)
                 if val_outputs.dim() > 1:
-                    val_outputs = outputs.squeeze(1)
+                    val_outputs = val_outputs.squeeze(1)
                 
                 val_loss += loss_function(val_outputs, val_targets).item()
                 
