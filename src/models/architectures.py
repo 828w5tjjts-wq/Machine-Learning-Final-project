@@ -63,23 +63,26 @@ class MLPModel(nn.Module):
         x = self.layer3(x)
         return x
     
-class MLPModel_Small(nn.Module):
+class MLPModel_V2(nn.Module):
     def __init__(self, input_dim, output_dim):
-        super(MLPModel_Small, self).__init__()
+        super(MLPModel_V2, self).__init__()
         
-        # Layer 1: Weniger Neuronen (Reduzierung der Komplexität)
-        self.layer1 = nn.Linear(input_dim, 32)
+        # Layer 1: 562 -> 256 (Mehr Kapazität)
+        self.layer1 = nn.Linear(input_dim, 256)
         self.relu1 = nn.ReLU()
         
-        # Layer 2: Noch kleiner
-        self.layer2 = nn.Linear(32, 16)
+        # Layer 2: 256 -> 128
+        self.layer2 = nn.Linear(256, 128)
         self.relu2 = nn.ReLU()
         
-        # Layer 3: Output
-        self.layer3 = nn.Linear(16, 1)
+        # Layer 3: 128 -> 64
+        self.layer3 = nn.Linear(128, 64)
+        self.relu3 = nn.ReLU()
         
-        # STARKER DROPOUT: 50% der Verbindungen werden zufällig deaktiviert
-        self.dropout = nn.Dropout(0.5)
+        # Layer 4: Output
+        self.layer4 = nn.Linear(64, 1)
+        
+        self.dropout = nn.Dropout(0.3) # Etwas mehr Dropout
 
     def forward(self, x):
         x = self.layer1(x)
@@ -87,6 +90,40 @@ class MLPModel_Small(nn.Module):
         x = self.dropout(x)
         
         x = self.layer2(x)
+        x = self.relu2(x)
+        x = self.dropout(x)
+        
+        x = self.layer3(x)
+        x = self.relu3(x)
+        # Kein Dropout vor dem letzten Layer oft besser
+        
+        x = self.layer4(x)
+        return x
+    
+class MLPModel_V3(nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super(MLPModel_V3, self).__init__()
+        
+        self.layer1 = nn.Linear(input_dim, 256)
+        self.bn1 = nn.BatchNorm1d(256) # <--- Neu
+        self.relu1 = nn.ReLU()
+        
+        self.layer2 = nn.Linear(256, 128)
+        self.bn2 = nn.BatchNorm1d(128) # <--- Neu
+        self.relu2 = nn.ReLU()
+        
+        self.layer3 = nn.Linear(128, 1)
+        
+        self.dropout = nn.Dropout(0.3)
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.bn1(x)      # Erst Normalisieren
+        x = self.relu1(x)
+        x = self.dropout(x)
+        
+        x = self.layer2(x)
+        x = self.bn2(x)
         x = self.relu2(x)
         x = self.dropout(x)
         
