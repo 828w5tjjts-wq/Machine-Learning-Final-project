@@ -136,3 +136,47 @@ class MLPModel_V3(nn.Module):
         
         x = self.layer4(x)
         return x
+    
+class WideMLPModel(nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super(WideMLPModel, self).__init__()
+        
+        # Layer 1: Input -> Großer Hidden Layer (1024 statt 64)
+        self.layer1 = nn.Linear(input_dim, 1024)
+        self.relu1 = nn.ReLU()
+        self.bn1 = nn.BatchNorm1d(1024) # BatchNorm hilft bei großen Netzen
+        
+        # Layer 2: 1024 -> 512
+        self.layer2 = nn.Linear(1024, 512)
+        self.relu2 = nn.ReLU()
+        self.bn2 = nn.BatchNorm1d(512)
+        
+        # Layer 3: 512 -> 256
+        self.layer3 = nn.Linear(512, 256)
+        self.relu3 = nn.ReLU()
+        self.bn3 = nn.BatchNorm1d(256)
+        
+        # Layer 4: Output
+        self.layer4 = nn.Linear(256, 1)
+        
+        # Dropout (etwas höher, da das Netz größer ist)
+        self.dropout = nn.Dropout(0.4)
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.bn1(x)
+        x = self.relu1(x)
+        x = self.dropout(x)
+        
+        x = self.layer2(x)
+        x = self.bn2(x)
+        x = self.relu2(x)
+        x = self.dropout(x)
+        
+        x = self.layer3(x)
+        x = self.bn3(x)
+        x = self.relu3(x)
+        x = self.dropout(x)
+        
+        x = self.layer4(x)
+        return x
