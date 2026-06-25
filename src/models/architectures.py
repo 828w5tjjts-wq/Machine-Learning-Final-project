@@ -180,3 +180,71 @@ class WideMLPModel(nn.Module):
         
         x = self.layer4(x)
         return x
+    
+class ResidualBlock(nn.Module):
+    def __init__(self, dim):
+        super(ResidualBlock, self).__init__()
+        self.block = nn.Sequential(
+            nn.Linear(dim, dim),
+            nn.BatchNorm1d(dim),
+            nn.GELU(), # Versuch GELU statt ReLU
+            nn.Dropout(0.1)
+        )
+
+    def forward(self, x):
+        return x + self.block(x) # <--- Die Magie: Input + Output
+
+class DeepResidualMLP(nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super(DeepResidualMLP, self).__init__()
+        
+        # 1. Input Embedding (Projektion)
+        self.input_layer = nn.Sequential(
+            nn.Linear(input_dim, 1024),
+            nn.BatchNorm1d(1024),
+            nn.GELU()
+        )
+        
+        # 2. Tiefe Blöcke (Stacked Residual Blocks)
+        # Wir machen 3 Blöcke mit 1024 Neuronen
+        self.blocks = nn.ModuleList([
+            ResidualBlock(1024),
+            ResidualBlock(1024),
+            ResidualBlock(1024)
+        ])
+        
+        # 3. Reduzierung (Bottleneck)
+        self.transition = nn.Sequential(
+            nn.Linear(1024, 512),
+            nn.BatchNorm1d(512),
+            nn.GELU(),
+            nn.Dropout(0.2)
+        )
+        
+        # 4. Noch ein paar tiefe Blöcke mit 512
+        self.blocks_small = nn.ModuleList([
+            ResidualBlock(512),
+            ResidualBlock(512)
+        ])
+        
+        # 5. Output Layer
+        self.output_layer = nn.Linear(512, 1)
+
+    def forward(self, x):
+        # Input Projection
+        x = self.input_layer(x)
+        
+        # Deep Blocks 1024
+        for block in self.blocks:
+            x = block(x)
+            
+        # Transition
+        x = self.transition(x)
+        
+        # Deep Blocks 512
+        for block in self.blocks_small:
+            x = block(x)
+        
+        # Output
+        x = self.output_layer(x)
+        return x
