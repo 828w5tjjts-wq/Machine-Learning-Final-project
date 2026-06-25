@@ -100,32 +100,3 @@ class MLPModel_V2(nn.Module):
         x = self.layer4(x)
         return x
     
-class MLPModel_V3(nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super(MLPModel_V3, self).__init__()
-        
-        self.layer1 = nn.Linear(input_dim, 256)
-        self.bn1 = nn.BatchNorm1d(256) # <--- Neu
-        self.relu1 = nn.ReLU()
-        
-        self.layer2 = nn.Linear(256, 128)
-        self.bn2 = nn.BatchNorm1d(128) # <--- Neu
-        self.relu2 = nn.ReLU()
-        
-        self.layer3 = nn.Linear(128, 1)
-        
-        self.dropout = nn.Dropout(0.3)
-
-    def forward(self, x):
-        x = self.layer1(x)
-        x = self.bn1(x)      # Erst Normalisieren
-        x = self.relu1(x)
-        x = self.dropout(x)
-        
-        x = self.layer2(x)
-        x = self.bn2(x)
-        x = self.relu2(x)
-        x = self.dropout(x)
-        
-        x = self.layer3(x)
-        return x
