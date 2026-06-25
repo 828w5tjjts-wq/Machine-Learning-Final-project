@@ -102,7 +102,7 @@ class MLPModel_V2(nn.Module):
     
 class MLPModel_V3(nn.Module):
     def __init__(self, input_dim, output_dim):
-        super(MLPModel_V2, self).__init__()
+        super(MLPModel_V3, self).__init__()
         
         # Layer 1: 562 -> 256 (Mehr Kapazität)
         self.layer1 = nn.Linear(input_dim, 512)
