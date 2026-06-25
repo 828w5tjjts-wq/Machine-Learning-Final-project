@@ -89,3 +89,80 @@ def test_learning_rates(learning_rates, model_class, input_dim, output_dim,
     plt.show()
     
     return best_lr, best_loss
+
+
+def test_learning_rates_curves(learning_rates, model_class, input_dim, output_dim, 
+                               train_loader, val_loader, device, epochs=20):
+    """
+    Testet verschiedene Learning Rates und plottet den gesamten Verlauf des Validation Loss.
+    """
+    
+    # Dictionary um die Verläufe zu speichern: Key = LR, Value = Liste der Losses
+    all_val_losses = {}
+    
+    print(f"Starte Hyperparameter-Test für {len(learning_rates)} Learning Rates ({epochs} Epochen)...")
+    
+    for lr in learning_rates:
+        print(f"\n--- Teste Learning Rate: {lr} ---")
+        
+        model = model_class(input_dim=input_dim, output_dim=output_dim).to(device)
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+        loss_fn = torch.nn.MSELoss()
+        
+        epoch_losses = [] # Speichert Loss für jede Epoche
+        
+        for epoch in range(epochs):
+            # Training
+            model.train()
+            for inputs, targets in train_loader:
+                inputs, targets = inputs.to(device), targets.to(device)
+                if targets.dim() > 1: targets = targets.squeeze(1)
+                
+                optimizer.zero_grad()
+                predictions = model(inputs)
+                if predictions.dim() > 1: predictions = predictions.squeeze(1)
+                
+                loss = loss_fn(predictions, targets)
+                loss.backward()
+                optimizer.step()
+            
+            # Validation
+            model.eval()
+            val_loss_sum = 0
+            count = 0
+            with torch.no_grad():
+                for inputs, targets in val_loader:
+                    inputs, targets = inputs.to(device), targets.to(device)
+                    if targets.dim() > 1: targets = targets.squeeze(1)
+                    
+                    predictions = model(inputs)
+                    if predictions.dim() > 1: predictions = predictions.squeeze(1)
+                    
+                    val_loss_sum += loss_fn(predictions, targets).item()
+                    count += 1
+            
+            avg_val_loss = val_loss_sum / count
+            epoch_losses.append(avg_val_loss)
+            
+        # Speichern
+        all_val_losses[lr] = epoch_losses
+        print(f"LR {lr} beendet. Finaler Val Loss: {avg_val_loss:.4f}")
+
+    # --- PLOTTEN ---
+    plt.figure(figsize=(12, 6))
+    
+    for lr, losses in all_val_losses.items():
+        plt.plot(range(epochs), losses, label=f'LR: {lr}')
+    
+    plt.xlabel('Epochs')
+    plt.ylabel('Validation Loss (MSE)')
+    plt.title('Vergleich der Learning Rates über die Zeit')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    
+    # Besten finalen Loss finden (optional)
+    best_final_lr = min(all_val_losses.items(), key=lambda x: x[1][-1])[0]
+    print(f"\nBester finaler Val Loss bei LR: {best_final_lr}")
+    
+    return all_val_losses
