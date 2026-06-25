@@ -160,7 +160,7 @@ class WideMLPModel(nn.Module):
         self.layer4 = nn.Linear(256, 1)
         
         # Dropout (etwas höher, da das Netz größer ist)
-        self.dropout = nn.Dropout(0.4)
+        self.dropout = nn.Dropout(0.3)
 
     def forward(self, x):
         x = self.layer1(x)
